@@ -11,7 +11,7 @@ namespace EasyGelf.Core.Transports.Amqp
         private readonly AmqpTransportConfiguration configuration;
         private readonly ITransportEncoder encoder;
         private readonly IGelfMessageSerializer messageSerializer;
-        private IModel channel;
+        private IChannel channel;
         private IConnection connection;
 
         public AmqpTransport(AmqpTransportConfiguration configuration, ITransportEncoder encoder, IGelfMessageSerializer messageSerializer)
@@ -28,9 +28,14 @@ namespace EasyGelf.Core.Transports.Amqp
             {
                 var basicProperties = new BasicProperties
                     {
-                        DeliveryMode = configuration.Persistent ? (byte)2 : (byte)1
+                        DeliveryMode = configuration.Persistent ? DeliveryModes.Persistent : DeliveryModes.Transient
                     };
-                channel.BasicPublish(configuration.Exchange, configuration.RoutingKey, false, false, basicProperties, bytes);
+            
+                channel.BasicPublishAsync(configuration.Exchange,
+                                          configuration.RoutingKey,
+                                          false,
+                                          basicProperties,
+                                          bytes);
             }
         }
 
@@ -55,17 +60,16 @@ namespace EasyGelf.Core.Transports.Amqp
 
                 var connectionFactory = new ConnectionFactory
                     {
-                        Uri = configuration.ConnectionUri,
+                        Uri = new Uri(configuration.ConnectionUri),
                         AutomaticRecoveryEnabled = true,
                         TopologyRecoveryEnabled = true,
-                        UseBackgroundThreadsForIO = true,
-                        RequestedHeartbeat = 10,
+                        RequestedHeartbeat = TimeSpan.FromSeconds(10),
                     };
-                connection = connectionFactory.CreateConnection();
-                channel = connection.CreateModel();
-                channel.ExchangeDeclare(configuration.Exchange, configuration.ExchangeType, true);
-                channel.QueueDeclare(configuration.Queue, true, false, false, new Dictionary<string, object>());
-                channel.QueueBind(configuration.Queue, configuration.Exchange, configuration.RoutingKey);
+                connection = connectionFactory.CreateConnectionAsync().Result;
+                channel = connection.CreateChannelAsync().Result;
+                channel.ExchangeDeclareAsync(configuration.Exchange, configuration.ExchangeType, true);
+                channel.QueueDeclareAsync(configuration.Queue, true, false, false, new Dictionary<string, object>());
+                channel.QueueBindAsync(configuration.Queue, configuration.Exchange, configuration.RoutingKey);
             }
             catch (Exception exception)
             {
