@@ -1,5 +1,7 @@
 EasyGelf [![Build status](https://ci.appveyor.com/api/projects/status/o7ni0ymhjhvcsn8u/branch/master?svg=true)](https://ci.appveyor.com/project/Pliner/easygelf/branch/master)
 ========
+Updating to work with .NET 10
+
 Goals: to support up to date version of Gelf and provide reliable integration with popular .Net logging libraries.
 
 Now log4net and NLog are supported. Also Udp, Tcp and Amqp protocols are supported.
