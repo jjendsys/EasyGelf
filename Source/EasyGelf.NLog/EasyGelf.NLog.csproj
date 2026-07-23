@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-	<TargetFrameworks>net10.0-windows</TargetFrameworks>
+	<TargetFrameworks>net472</TargetFrameworks>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>EasyGelf.NLog</RootNamespace>
@@ -39,12 +39,13 @@
     <ProjectReference Include="..\EasyGelf.Core\EasyGelf.Core.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="ILRepack" Version="1.17.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="ILRepack.MSBuild.Task" Version="1.0.9" />
     <PackageReference Include="NLog" Version="6.1.4" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="EasyGelf.NLog.nuspec" />
-  </ItemGroup>
-  <Import Project="..\packages\ILRepack.MSBuild.Task.1.0.9\build\ILRepack.MSBuild.Task.targets" Condition="Exists('..\packages\ILRepack.MSBuild.Task.1.0.9\build\ILRepack.MSBuild.Task.targets')" />
   <Target Name="AfterBuild" Condition="'$(Configuration)' == 'Release'">
     <ItemGroup>
       <InputAssemblies Include="$(OutputPath)\EasyGelf.NLog.dll" />
@@ -54,6 +55,6 @@
     <ItemGroup>
       <DoNotInternalizeAssemblies Include="EasyGelf.Core" />
     </ItemGroup>
-    <ILRepack Parallel="true" Internalize="true" InternalizeExclude="@(DoNotInternalizeAssemblies)" InputAssemblies="@(InputAssemblies)" TargetKind="Dll" TargetPlatformVersion="v4" OutputFile="$(OutputPath)\EasyGelf.NLog.dll" />
+    <ILRepack Parallel="true" Internalize="true" InternalizeExclude="@(DoNotInternalizeAssemblies)" InputAssemblies="@(InputAssemblies)" TargetKind="Dll" OutputFile="$(OutputPath)\EasyGelf.NLog.dll" />
   </Target>
 </Project>
